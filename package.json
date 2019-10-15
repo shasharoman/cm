@@ -1,0 +1,55 @@
+{
+    "name": "cm",
+    "version": "1.0.0",
+    "description": "cm",
+    "directories": {},
+    "main": "cli/index",
+    "bin": {
+        "cm": "cli/index"
+    },
+    "scripts": {},
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/shasharoman/cm.git"
+    },
+    "keywords": [
+        "cluster manage"
+    ],
+    "author": "shasharoman@gmail.com",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/shasharoman/cm/issues"
+    },
+    "homepage": "https://github.com/shasharoman/cm#readme",
+    "dependencies": {
+        "equeue": "https://github.com:shasharoman/equeue.git#v1.0.0",
+        "sok": "https://github.com:shasharoman/sok.git#v1.0.1",
+        "cli-table": "0.3.1",
+        "commander": "3.0.2",
+        "date-fns": "2.4.1",
+        "debug": "4.1.1",
+        "lodash": "4.17.15"
+    },
+    "devDependencies": {
+        "eslint": "6.5.0",
+        "husky": "3.0.7",
+        "js-beautify": "1.10.2",
+        "lint-staged": "9.4.0"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.js": [
+            "js-beautify --config ./.editorconfig -r -f",
+            "eslint --fix",
+            "git add"
+        ],
+        "*.json": [
+            "js-beautify --config ./.editorconfig -r -f",
+            "git add"
+        ]
+    }
+}
