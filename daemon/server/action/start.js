@@ -7,13 +7,14 @@ const App = require('../lib/App');
 const appStore = require('../store/app');
 const pub = require('../lib/pub');
 
-module.exports = async(options) => {
+module.exports = async (options) => {
     debug('options %s', JSON.stringify(options));
 
     let {
         name,
         script,
         num,
+        env,
         args
     } = options;
 
@@ -28,7 +29,7 @@ module.exports = async(options) => {
 
     num = num || os.cpus().length;
     for (let i = 0; i < num; i++) {
-        let app = new App(name, script, args);
+        let app = new App(name, script, args, env);
         await app.start();
         appStore.add(app);
     }

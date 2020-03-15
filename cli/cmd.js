@@ -3,6 +3,8 @@ const commander = require('commander');
 const p = require('path');
 const _ = require('lodash');
 const cp = require('child_process');
+const fs = require('fs');
+const qs = require('querystring');
 
 daemon.connect(msg => {
     console.log(msg);
@@ -16,17 +18,29 @@ commander.command('start <script>')
     .description('start app with script path')
     .option('--name <name>')
     .option('--num <num>')
-    .action(async(script, options) => {
-        await invoke(async() => {
+    .option('--env <env>')
+    .action(async (script, options) => {
+        await invoke(async () => {
             let args = [];
             if (commander.rawArgs.includes('--')) {
                 args = commander.rawArgs.slice(commander.rawArgs.indexOf('--') + 1);
+            }
+
+            let env = {};
+            if (options.env) {
+                if (fs.existsSync(p.resolve(process.cwd(), options.env))) {
+                    env = JSON.parse(fs.readFileSync(p.resolve(process.cwd(), options.env)));
+                }
+                else {
+                    env = qs.parse(options.env);
+                }
             }
 
             await daemon.start({
                 script: p.resolve(process.cwd(), script),
                 name: _.isFunction(options.name) ? p.basename(script, '.js') : options.name, // if no name, name is func in commander
                 num: options.num ? Number(options.num) : 1,
+                env: env,
                 args: args
             });
             await daemon.list();
@@ -35,8 +49,8 @@ commander.command('start <script>')
 
 commander.command('list')
     .description('show all apps')
-    .action(async() => {
-        await invoke(async() => {
+    .action(async () => {
+        await invoke(async () => {
             await daemon.list();
         });
     });
@@ -44,7 +58,7 @@ commander.command('list')
 commander.command('restart [app]')
     .description('restart app by [name|id]')
     .action(async app => {
-        await invoke(async() => {
+        await invoke(async () => {
             await daemon.restart(app);
             await daemon.list();
         });
@@ -53,7 +67,7 @@ commander.command('restart [app]')
 commander.command('reload [app]')
     .description('reload app by [name|id]')
     .action(async app => {
-        await invoke(async() => {
+        await invoke(async () => {
             await daemon.reload(app);
             await daemon.list();
         });
@@ -62,7 +76,7 @@ commander.command('reload [app]')
 commander.command('stop [app]')
     .description('stop app by [name|id]')
     .action(async app => {
-        await invoke(async() => {
+        await invoke(async () => {
             await daemon.stop(app);
             await daemon.list();
         });
@@ -70,8 +84,8 @@ commander.command('stop [app]')
 
 commander.command('rename <from> <to>')
     .description('rename app <from> => <to>')
-    .action(async(from, to) => {
-        await invoke(async() => {
+    .action(async (from, to) => {
+        await invoke(async () => {
             await daemon.rename(from, to);
             await daemon.list();
         });
@@ -80,7 +94,7 @@ commander.command('rename <from> <to>')
 commander.command('reset [name]')
     .description('reset restart count by name')
     .action(async name => {
-        await invoke(async() => {
+        await invoke(async () => {
             await daemon.reset(name);
             await daemon.list();
         });
@@ -88,8 +102,8 @@ commander.command('reset [name]')
 
 commander.command('post <msg> [app]')
     .description('post message to app by [name|id]')
-    .action(async(msg, app) => {
-        await invoke(async() => {
+    .action(async (msg, app) => {
+        await invoke(async () => {
             await daemon.post(app, msg);
         });
     });
@@ -97,7 +111,7 @@ commander.command('post <msg> [app]')
 commander.command('remove [app]')
     .description('remove app by [name|id]')
     .action(async app => {
-        await invoke(async() => {
+        await invoke(async () => {
             await daemon.remove(app);
             await daemon.list();
         });
@@ -113,14 +127,14 @@ commander.command('log')
 
 commander.command('kill')
     .description('kill daemon, all apps will stop')
-    .action(async() => {
-        await invoke(async() => {
+    .action(async () => {
+        await invoke(async () => {
             await daemon.kill();
         });
     });
 
-commander.on('command:*', async() => {
-    await invoke(async() => {
+commander.on('command:*', async () => {
+    await invoke(async () => {
         console.log('unsupport command');
     });
 });
@@ -133,8 +147,8 @@ commander.on('--help', function () {
 commander.parse(process.argv);
 
 if (commander.args.length < 1) {
-    (async() => {
-        await invoke(async() => {
+    (async () => {
+        await invoke(async () => {
             await daemon.list();
         });
     })();

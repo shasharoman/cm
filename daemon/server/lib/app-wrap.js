@@ -1,4 +1,3 @@
-const p = require('path');
 const fs = require('fs');
 
 const C = require('../../const');
@@ -13,7 +12,7 @@ if (env.name) {
     process.title = `CM ${env.name}`;
 }
 
-process.chdir(p.dirname(env.script));
+process.chdir(process.cwd());
 
 let logStream = fs.createWriteStream(C.APP_LOG, {
     flags: 'a'

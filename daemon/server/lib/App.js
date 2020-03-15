@@ -15,12 +15,13 @@ cluster.setupMaster({
 });
 
 module.exports = class App {
-    constructor(name, script, args) {
+    constructor(name, script, args, env = {}) {
         this.id = id++;
         this.name = name;
         this.script = script;
         this.args = args;
         this.status = C.APP_STATUS.STOPED;
+        this.env = env;
 
         this.worker = null;
         this.pid = null;
@@ -41,11 +42,11 @@ module.exports = class App {
         }
 
         return new Promise((resolve, reject) => {
-            let worker = cluster.fork({
+            let worker = cluster.fork(Object.assign({}, this.env, {
                 name: this.name,
                 script: this.script,
                 args: this.args.join(' ')
-            });
+            }));
             worker.on('online', () => {
                 if (!this.setStatus(C.APP_STATUS.RUNNING)) {
                     return;
@@ -73,7 +74,7 @@ module.exports = class App {
 
                 if (this.status === C.APP_STATUS.RUNNING) {
                     this.setStatus(C.APP_STATUS.STOPING);
-                    process.nextTick(async() => {
+                    process.nextTick(async () => {
                         await this.restart();
                     });
                 }
