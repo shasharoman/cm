@@ -26,7 +26,9 @@ commander.command('start <script>')
                 args = commander.rawArgs.slice(commander.rawArgs.indexOf('--') + 1);
             }
 
-            let env = {};
+            let env = {
+                cwd: process.cwd()
+            };
             if (options.env) {
                 if (fs.existsSync(p.resolve(process.cwd(), options.env))) {
                     env = JSON.parse(fs.readFileSync(p.resolve(process.cwd(), options.env)));

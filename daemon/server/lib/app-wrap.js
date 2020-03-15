@@ -12,8 +12,6 @@ if (env.name) {
     process.title = `CM ${env.name}`;
 }
 
-process.chdir(process.cwd());
-
 let logStream = fs.createWriteStream(C.APP_LOG, {
     flags: 'a'
 });

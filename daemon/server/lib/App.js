@@ -42,6 +42,9 @@ module.exports = class App {
         }
 
         return new Promise((resolve, reject) => {
+            cluster.setupMaster({
+                cwd: this.env.cwd
+            });
             let worker = cluster.fork(Object.assign({}, this.env, {
                 name: this.name,
                 script: this.script,
@@ -199,8 +202,12 @@ module.exports = class App {
             worker.on('disconnect', () => {
                 this._info(`worker:${worker.process.pid} disconnected`);
 
-                timer && clearTimeout(timer);
                 resolve();
+            });
+
+            worker.on('exit', () => {
+                this._info(`worker:${worker.process.pid} exited`);
+                timer && clearTimeout(timer);
             });
 
             this._info(`worker:${worker.process.pid} disconnecting`);
@@ -226,8 +233,8 @@ module.exports = class App {
         }, timeout);
 
         return new Promise(resolve => {
-            worker.on('disconnect', () => {
-                this._info(`worker:${worker.process.pid} disconnected`);
+            worker.on('exit', () => {
+                this._info(`worker:${worker.process.pid} exited`);
 
                 timer && clearTimeout(timer);
                 resolve();

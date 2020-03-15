@@ -1,5 +1,6 @@
 const debug = require('debug')('daemon:server');
 
+const os = require('os');
 const sok = require('sok');
 const cp = require('child_process');
 const _ = require('lodash');
@@ -13,6 +14,7 @@ if (typeof process.send === 'function') {
     debug('start server');
 
     process.title = 'CM daemon';
+    process.chdir(os.homedir());
 
     let waiting = [
         C.BUS_READY_EVENT.PUB,
