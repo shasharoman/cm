@@ -26,9 +26,7 @@ commander.command('start <script>')
                 args = commander.rawArgs.slice(commander.rawArgs.indexOf('--') + 1);
             }
 
-            let env = {
-                cwd: process.cwd()
-            };
+            let env = {};
             if (options.env) {
                 if (fs.existsSync(p.resolve(process.cwd(), options.env))) {
                     env = JSON.parse(fs.readFileSync(p.resolve(process.cwd(), options.env)));
@@ -37,6 +35,9 @@ commander.command('start <script>')
                     env = qs.parse(options.env);
                 }
             }
+            env = Object.assign({
+                cwd: process.cwd()
+            }, env);
 
             await daemon.start({
                 script: p.resolve(process.cwd(), script),
