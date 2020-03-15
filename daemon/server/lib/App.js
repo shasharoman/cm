@@ -197,17 +197,19 @@ module.exports = class App {
 
         return new Promise(resolve => {
             this.post('exit', worker);
-            let timer = setTimeout(() => this._kill(worker, timeout), timeout);
+            let timer = setTimeout(() => {
+                this._info(`worker:${worker.process.pid} not exit, try kill it`);
+
+                this._kill(worker, timeout);
+            }, timeout);
 
             worker.on('disconnect', () => {
                 this._info(`worker:${worker.process.pid} disconnected`);
-
-                resolve();
             });
 
             worker.on('exit', () => {
-                this._info(`worker:${worker.process.pid} exited`);
                 timer && clearTimeout(timer);
+                resolve();
             });
 
             this._info(`worker:${worker.process.pid} disconnecting`);
